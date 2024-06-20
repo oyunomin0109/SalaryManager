@@ -543,7 +543,7 @@ class MainActivity : AppCompatActivity() {
 
                 builder.setPositiveButton("はい") { dialog, _ ->
                     dialog.dismiss()
-                    openWebsite("https://www.example.com")
+                    openWebsite("https://github.com/oyunomin0109/SalaryManager/wiki/%E6%93%8D%E4%BD%9C%E3%83%9E%E3%83%8B%E3%83%A5%E3%82%A2%E3%83%AB")
                 }
 
                 builder.setNegativeButton("いいえ") { dialog, _ ->
