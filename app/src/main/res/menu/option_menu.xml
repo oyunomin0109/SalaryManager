@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.androidmenutest.app.MainActivity">
+
+    <item
+        android:id="@+id/see_salary_database"
+        android:orderInCategory="200"
+        android:title="保存DBを閲覧"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/employee_list"
+        android:orderInCategory="200"
+        android:title="従業員一覧"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/setting_hourly_wage"
+        android:orderInCategory="300"
+        android:title="時給設定"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/operation_manual"
+        android:orderInCategory="300"
+        android:title="マニュアル"
+        app:showAsAction="never" />
+
+</menu>
