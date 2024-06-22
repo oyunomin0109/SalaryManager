@@ -131,7 +131,8 @@ class MainActivity : AppCompatActivity() {
             findViewById(R.id.equal),
             findViewById(R.id.weekdays),
             findViewById(R.id.holiday),
-            findViewById(R.id.customsalary)
+            findViewById(R.id.customsalary),
+            findViewById(R.id.allclear)
         )
 
         optionMenuButton.setOnClickListener {
@@ -230,6 +231,7 @@ class MainActivity : AppCompatActivity() {
                 user_holiday_salary = 0
                 user_base_hourly_wage_data = 0
                 user_holiday_hourly_wage_data = 0
+                Log.d("MyActivityNumCheck1", "clicked AC")
             }
             value == "C" -> {
                 inputTextView.setText("")
@@ -307,7 +309,6 @@ class MainActivity : AppCompatActivity() {
                 if(part.startsWith("+")) {
                     newpart = part.drop(1)
                 }
-                Log.d("MyActivityNumCheck2", newpart.toString())
                 val timeParts = newpart.split(":")
                 if (timeParts.size == 2) {
                     val hours = timeParts[0].toInt()
