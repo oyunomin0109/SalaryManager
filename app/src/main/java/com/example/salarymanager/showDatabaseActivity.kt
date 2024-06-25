@@ -215,6 +215,11 @@ class showDatabaseActivity : AppCompatActivity(){
         basehourlywageHeader.setGravity(Gravity.LEFT)
         basehourlywageHeader.setPadding(16, 16, 16, 16)
         basehourlywageHeader.setBackgroundColor(Color.rgb(224, 224, 224))
+        val baseworkingcountHeader = TextView(this)
+        baseworkingcountHeader.text = "平日勤務回"
+        baseworkingcountHeader.setGravity(Gravity.LEFT)
+        baseworkingcountHeader.setPadding(16, 16, 16, 16)
+        baseworkingcountHeader.setBackgroundColor(Color.rgb(224, 224, 224))
         val holidaysalaryHeader = TextView(this)
         holidaysalaryHeader.text = "土休差額"
         holidaysalaryHeader.setGravity(Gravity.LEFT)
@@ -235,6 +240,11 @@ class showDatabaseActivity : AppCompatActivity(){
         holidayhourlywageHeader.setGravity(Gravity.LEFT)
         holidayhourlywageHeader.setPadding(16, 16, 16, 16)
         holidayhourlywageHeader.setBackgroundColor(Color.rgb(224, 224, 224))
+        val holidayworkingcountHeader = TextView(this)
+        holidayworkingcountHeader.text = "土休勤務回"
+        holidayworkingcountHeader.setGravity(Gravity.LEFT)
+        holidayworkingcountHeader.setPadding(16, 16, 16, 16)
+        holidayworkingcountHeader.setBackgroundColor(Color.rgb(224, 224, 224))
         headerRow.addView(yearHeader)
         headerRow.addView(monthHeader)
         headerRow.addView(nameHeader)
@@ -243,10 +253,12 @@ class showDatabaseActivity : AppCompatActivity(){
         headerRow.addView(basehourHeader)
         headerRow.addView(basetimeHeader)
         headerRow.addView(basehourlywageHeader)
+        headerRow.addView(baseworkingcountHeader)
         headerRow.addView(holidaysalaryHeader)
         headerRow.addView(holidayhourHeader)
         headerRow.addView(holidaytimeHeader)
         headerRow.addView(holidayhourlywageHeader)
+        headerRow.addView(holidayworkingcountHeader)
 
         tableLayout.addView(headerRow)
 
@@ -278,6 +290,8 @@ class showDatabaseActivity : AppCompatActivity(){
                     it.getString(it.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_BASE_TIMES))
                 val basehourlywage =
                     it.getString(it.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_BASE_HOURLY_WAGE))
+                val baseworkingcount =
+                    it.getString(it.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_BASE_WORKING_COUNT))
                 val holidaysalary =
                     it.getString(it.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_SALARY))
                 val holidayhours =
@@ -286,6 +300,8 @@ class showDatabaseActivity : AppCompatActivity(){
                     it.getString(it.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_TIMES))
                 val holidayhourlywage =
                     it.getString(it.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_HOURLY_WAGE))
+                val holidayworkingcount =
+                    it.getString(it.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_WORKING_COUNT))
                 val tableRow = TableRow(this)
                 val layoutParams = TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT)
                 tableRow.layoutParams = layoutParams
@@ -322,6 +338,10 @@ class showDatabaseActivity : AppCompatActivity(){
                 BaseHourlyWageTextView.text = basehourlywage
                 BaseHourlyWageTextView.setGravity(Gravity.LEFT)
                 BaseHourlyWageTextView.setPadding(16, 16, 16, 16)
+                val BaseWorkingCountTextView = TextView(this)
+                BaseWorkingCountTextView.text = baseworkingcount
+                BaseWorkingCountTextView.setGravity(Gravity.LEFT)
+                BaseWorkingCountTextView.setPadding(16, 16, 16, 16)
                 val HolidaySalaryTextView = TextView(this)
                 HolidaySalaryTextView.text = holidaysalary
                 HolidaySalaryTextView.setGravity(Gravity.LEFT)
@@ -338,6 +358,10 @@ class showDatabaseActivity : AppCompatActivity(){
                 HolidayHourlyWageTextView.text = holidayhourlywage
                 HolidayHourlyWageTextView.setGravity(Gravity.LEFT)
                 HolidayHourlyWageTextView.setPadding(16, 16, 16, 16)
+                val HolidayWorkingCountTextView = TextView(this)
+                HolidayWorkingCountTextView.text = holidayworkingcount
+                HolidayWorkingCountTextView.setGravity(Gravity.LEFT)
+                HolidayWorkingCountTextView.setPadding(16, 16, 16, 16)
 
                 tableRow.addView(yearTextView)
                 tableRow.addView(monthTextView)
@@ -347,13 +371,15 @@ class showDatabaseActivity : AppCompatActivity(){
                 tableRow.addView(BaseHoursTextView)
                 tableRow.addView(BaseTimesTextView)
                 tableRow.addView(BaseHourlyWageTextView)
+                tableRow.addView(BaseWorkingCountTextView)
                 tableRow.addView(HolidaySalaryTextView)
                 tableRow.addView(HolidayHoursTextView)
                 tableRow.addView(HolidayTimesTextView)
                 tableRow.addView(HolidayHourlyWageTextView)
+                tableRow.addView(HolidayWorkingCountTextView)
 
                 tableRow.setOnClickListener {
-                    showDataDialog(id, name, year, month, totalsalary, basesalary, basehours, basetimes, basehourlywage, holidaysalary, holidayhours, holidaytimes, holidayhourlywage)
+                    showDataDialog(id, name, year, month, totalsalary, basesalary, basehours, basetimes, basehourlywage, baseworkingcount, holidaysalary, holidayhours, holidaytimes, holidayhourlywage, holidayworkingcount)
                 }
 
                 tableLayout.addView(tableRow)
@@ -370,9 +396,9 @@ class showDatabaseActivity : AppCompatActivity(){
         csvButton.setVisibility(View.VISIBLE)
     }
 
-    private fun showDataDialog(id: Long, name: String?, year: String?, month: String?, totalsalary: String?, basesalary: String?, basehours: String?, basetimes: String?, basehourlywage: String?, holidaysalary: String?, holidayhours: String?, holidaytimes: String?, holidayhourlywage: String?) {
+    private fun showDataDialog(id: Long, name: String?, year: String?, month: String?, totalsalary: String?, basesalary: String?, basehours: String?, basetimes: String?, basehourlywage: String?, baseworkingcount: String?, holidaysalary: String?, holidayhours: String?, holidaytimes: String?, holidayhourlywage: String?, holidayworkingcount: String?, ) {
         val dialogBuilder = AlertDialog.Builder(this)
-        dialogBuilder.setTitle("Data Details")
+        dialogBuilder.setTitle("詳細データ")
         dialogBuilder.setMessage("ID: $id\n" +
                 "従業員名: $name\n" +
                 "年: $year\n" +
@@ -382,10 +408,12 @@ class showDatabaseActivity : AppCompatActivity(){
                 "基本(平日)勤務時間(時): $basehours\n" +
                 "基本(平日)勤務時間(分): $basetimes\n" +
                 "基本(平日)時給: $basehourlywage\n" +
+                "合計勤務回数: $baseworkingcount\n" +
                 "土休祝差額: + $holidaysalary\n" +
                 "土休祝勤務時間(時): $holidayhours\n" +
                 "土休祝勤務時間(分): $holidaytimes\n" +
-                "土休祝差額時給: $holidayhourlywage\n")
+                "土休祝差額時給: $holidayhourlywage\n" +
+                "土休祝差額時給: $holidayworkingcount\n")
         dialogBuilder.setPositiveButton("確認") { dialog, _ -> dialog.dismiss() }
         dialogBuilder.setNegativeButton("削除") { dialog, _ ->
             deleteData(id)
@@ -481,11 +509,13 @@ class showDatabaseActivity : AppCompatActivity(){
                             val basehours = it.getString(it.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_BASE_HOURS))
                             val basetimes = it.getString(it.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_BASE_TIMES))
                             val basehourlywage = it.getString(it.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_BASE_HOURLY_WAGE))
+                            val baseworkingcount = it.getString(it.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_BASE_WORKING_COUNT))
                             val holidaysalary = it.getString(it.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_SALARY))
                             val holidayhours = it.getString(it.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_HOURS))
                             val holidaytimes = it.getString(it.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_TIMES))
                             val holidayhourlywage = it.getString(it.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_HOURLY_WAGE))
-                            writer.append("$year,$month,$name,$totalsalary,$basesalary,$basehours,$basetimes,$basehourlywage,$holidaysalary,$holidayhours,$holidaytimes,$holidayhourlywage\n")
+                            val holidayworkingcount = it.getString(it.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_WORKING_COUNT))
+                            writer.append("$year,$month,$name,$totalsalary,$basesalary,$basehours,$basetimes,$basehourlywage,$baseworkingcount,$holidaysalary,$holidayhours,$holidaytimes,$holidayhourlywage,$holidayworkingcount\n")
                         }
                     }
                 }

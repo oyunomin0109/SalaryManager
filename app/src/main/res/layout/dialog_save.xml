@@ -7,15 +7,38 @@
     android:orientation="vertical"
     android:padding="16dp">
 
+    <TextView
+        android:id="@+id/nameTextView"
+        android:layout_width="137dp"
+        android:layout_height="37dp"
+        android:text="従業員名"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <Spinner
         android:id="@+id/nameSpinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/nameTextView"
         tools:ignore="TouchTargetSizeCheck" />
+
+    <TextView
+        android:id="@+id/yearTextView"
+        android:layout_width="137dp"
+        android:layout_height="37dp"
+        android:layout_marginTop="12dp"
+        android:text="給料支給年"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/nameSpinner" />
 
     <EditText
         android:id="@+id/yearEditText"
@@ -26,8 +49,20 @@
         android:inputType="number"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/nameSpinner"
+        app:layout_constraintTop_toBottomOf="@+id/yearTextView"
         tools:ignore="MissingConstraints,TouchTargetSizeCheck,UnknownId" />
+
+    <TextView
+        android:id="@+id/monthTextView"
+        android:layout_width="137dp"
+        android:layout_height="37dp"
+        android:layout_marginTop="16dp"
+        android:text="給料支給月"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/yearEditText" />
 
     <EditText
         android:id="@+id/monthEditText"
@@ -38,7 +73,56 @@
         android:inputType="number"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/yearEditText"
+        app:layout_constraintTop_toBottomOf="@+id/monthTextView"
+        tools:ignore="MissingConstraints,TouchTargetSizeCheck" />
+
+    <TextView
+        android:id="@+id/baseworkcountTextView"
+        android:layout_width="160dp"
+        android:layout_height="34dp"
+        android:layout_marginTop="16dp"
+        android:text="合計勤務回数"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/monthEditText" />
+
+    <EditText
+        android:id="@+id/baseworkcountEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="合計回数"
+        android:inputType="number"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/baseworkcountTextView"
+        tools:ignore="MissingConstraints,TouchTargetSizeCheck" />
+
+    <TextView
+        android:id="@+id/holidayworkcountTextView"
+        android:layout_width="180dp"
+        android:layout_height="34dp"
+        android:layout_marginTop="16dp"
+        android:text="土休祝勤務回数"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/baseworkcountEditText" />
+
+    <EditText
+        android:id="@+id/holidayworkcountEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="土休祝回数"
+        android:inputType="number"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/holidayworkcountTextView"
         tools:ignore="MissingConstraints,TouchTargetSizeCheck" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -51,9 +51,8 @@ class MainActivity : AppCompatActivity() {
     private var holidays_hourly_wage_data: Int = 0
     private var custom_hourly_wage_data: Int = 0
 
-    private var totalSalary: Double = 0.0
-    private var totalStrTime: String = ""
-    private var SalaryType: String = ""
+    //勤務回数カウント変数
+    private var working_count: Int = 0
     //結果を表示するテキスト部品変数
     private lateinit var total_time: TextView
     private lateinit var total_salary: TextView
@@ -72,6 +71,9 @@ class MainActivity : AppCompatActivity() {
     private var user_base_work_times = 0
     private var user_holiday_work_hours = 0
     private var user_holiday_work_times = 0
+    private var user_base_work_count = 0
+    private var user_holiday_work_count = 0
+
     //平日、休日のボタンクリックしているかどうか
     private var base_salary_button_click: Boolean = false
     private var holiday_salary_button_click: Boolean = false
@@ -176,6 +178,7 @@ class MainActivity : AppCompatActivity() {
                     user_base_work_hours = totaltimes / 60
                     user_base_work_times = totaltimes % 60
                     base_salary_button_click = true
+                    user_base_work_count = working_count
                     if(holiday_salary_button_click){
                         user_total_salary = user_base_salary + user_holiday_salary
                         total_salary.setText(user_total_salary.toString() + "円")
@@ -192,6 +195,7 @@ class MainActivity : AppCompatActivity() {
                     user_holiday_work_hours = totaltimes / 60
                     user_holiday_work_times = totaltimes % 60
                     holiday_salary_button_click = true
+                    user_holiday_work_count = working_count
                     if(base_salary_button_click){
                         user_total_salary = user_base_salary + user_holiday_salary
                         total_salary.setText(user_total_salary.toString() + "円")
@@ -208,6 +212,7 @@ class MainActivity : AppCompatActivity() {
                     user_base_work_hours = totaltimes / 60
                     user_base_work_times = totaltimes % 60
                     base_salary_button_click = true
+                    user_base_work_count = working_count
                     if(holiday_salary_button_click){
                         user_total_salary = user_base_salary + user_holiday_salary
                         total_salary.setText(user_total_salary.toString() + "円")
@@ -231,7 +236,8 @@ class MainActivity : AppCompatActivity() {
                 user_holiday_salary = 0
                 user_base_hourly_wage_data = 0
                 user_holiday_hourly_wage_data = 0
-                Log.d("MyActivityNumCheck1", "clicked AC")
+                user_base_work_count = 0
+                user_holiday_work_count = 0
             }
             value == "C" -> {
                 inputTextView.setText("")
@@ -293,11 +299,9 @@ class MainActivity : AppCompatActivity() {
         var totalMinutes = 0
 
         parts.forEachIndexed { index, part ->
-            Log.d("MyActivityNumCheck", part.toString())
             var newpart = part
             if(part.startsWith("-")) {
                 newpart = part.drop(1)
-                Log.d("MyActivityNumCheck1", newpart.toString())
                 val timeParts = newpart.split(":")
                 if (timeParts.size == 2) {
                     val hours = timeParts[0].toInt()
@@ -317,6 +321,7 @@ class MainActivity : AppCompatActivity() {
                     totalMinutes += timeInMinutes
                 }
             }
+            working_count++
         }
 
         totaltimes = totalMinutes
@@ -415,6 +420,8 @@ class MainActivity : AppCompatActivity() {
         val nameSpinner = dialogView.findViewById<Spinner>(R.id.nameSpinner)
         val yearEditText = dialogView.findViewById<EditText>(R.id.yearEditText)
         val monthEditText = dialogView.findViewById<EditText>(R.id.monthEditText)
+        val baseworkcountEditText = dialogView.findViewById<EditText>(R.id.baseworkcountEditText)
+        val holidayworkcountEditText = dialogView.findViewById<EditText>(R.id.holidayworkcountEditText)
 
         val save_database_date = getSharedPreferences("save_database_date", MODE_PRIVATE)
         val save_database_year = save_database_date.getInt("save_database_year", 2024) //年
@@ -422,6 +429,8 @@ class MainActivity : AppCompatActivity() {
         //EditTextに予めテキストを入力しておく
         yearEditText.setText(save_database_year.toString())
         monthEditText.setText(save_database_month.toString())
+        baseworkcountEditText.setText(user_base_work_count.toString())
+        holidayworkcountEditText.setText(user_holiday_work_count.toString())
 
         val employeeNames = getEmployeeNames()
         val spinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, employeeNames)
@@ -435,7 +444,9 @@ class MainActivity : AppCompatActivity() {
                 val name = nameSpinner.selectedItem.toString()
                 val year = yearEditText.text.toString().toInt()
                 val month = monthEditText.text.toString().toInt()
-                saveDatabase(year, month, name)
+                val base_work_count = baseworkcountEditText.text.toString().toInt()
+                val holiday_work_count = holidayworkcountEditText.text.toString().toInt()
+                saveDatabase(year, month, name, base_work_count, holiday_work_count)
 
                 val save_database_date_editor: SharedPreferences.Editor = save_database_date.edit()
                 save_database_date_editor.putInt("save_database_year", yearEditText.text.toString().toInt())
@@ -463,7 +474,7 @@ class MainActivity : AppCompatActivity() {
         return names
     }
     //データベース保存関数
-    private fun saveDatabase(year: Int, month: Int, name: String) {
+    private fun saveDatabase(year: Int, month: Int, name: String, base_work_count: Int, holiday_work_count: Int) {
         if(user_total_salary == 0){
             Toast.makeText(this, "保存するデータの情報が不足しています！", Toast.LENGTH_SHORT).show()
         }else{
@@ -477,10 +488,12 @@ class MainActivity : AppCompatActivity() {
                 put(SalaryDatabaseContract.DatabaseEntry.COLUMN_BASE_HOURS, user_base_work_hours)
                 put(SalaryDatabaseContract.DatabaseEntry.COLUMN_BASE_TIMES, user_base_work_times)
                 put(SalaryDatabaseContract.DatabaseEntry.COLUMN_BASE_HOURLY_WAGE, user_base_hourly_wage_data)
+                put(SalaryDatabaseContract.DatabaseEntry.COLUMN_BASE_WORKING_COUNT, base_work_count)
                 put(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_SALARY, user_holiday_salary)
                 put(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_HOURS, user_holiday_work_hours)
                 put(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_TIMES, user_holiday_work_times)
                 put(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_HOURLY_WAGE, user_holiday_hourly_wage_data)
+                put(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_WORKING_COUNT, holiday_work_count)
 
             }
 
