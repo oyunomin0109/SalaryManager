@@ -409,7 +409,7 @@ class showDatabaseActivity : AppCompatActivity(){
                 "基本(平日)勤務時間(分): $basetimes\n" +
                 "基本(平日)時給: $basehourlywage\n" +
                 "合計勤務回数: $baseworkingcount\n" +
-                "土休祝差額: + $holidaysalary\n" +
+                "土休祝差額: $holidaysalary\n" +
                 "土休祝勤務時間(時): $holidayhours\n" +
                 "土休祝勤務時間(分): $holidaytimes\n" +
                 "土休祝差額時給: $holidayhourlywage\n" +
