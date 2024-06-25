@@ -277,7 +277,20 @@ class showDatabaseActivity : AppCompatActivity() {
                 }
 
                 db.query(SalaryDatabaseContract.DatabaseEntry.TABLE_NAME, null, selection, selectionArgs, null, null, null).use { cursor ->
-                    writer.append("年,月,名前,総給料,平日給料,平日時,平日分,平日時給,土休差額,土休時,土休分,土休差額時給\n")
+
+                    if (cursor == null || cursor.count == 0) {
+                        writer.append("データがありません")
+                        return
+                    }
+
+                    val headers = arrayOf(
+                        "従業員名", "年月", "基本給料", "勤務日数", "時間", "分",
+                        "基本時給", "基本合計給料", "土休祝差額", "勤務日数", "時間",
+                        "分", "土休日差額時給", "合計給料額"
+                    )
+
+                    // 各データの行データ
+                    val linesData = mutableListOf<Array<String>>()
                     while (cursor.moveToNext()) {
                         val year = cursor.getInt(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_YEAR))
                         val month = cursor.getInt(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_MONTH))
@@ -293,10 +306,37 @@ class showDatabaseActivity : AppCompatActivity() {
                         val holidayTimes = cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_TIMES))
                         val holidayHourlyWage = cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_HOURLY_WAGE))
                         val holidayWorkingCount = cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_WORKING_COUNT))
-                        writer.append("$year,$month,$name,$totalSalary,$baseSalary,$baseHours,$baseTimes,$baseHourlyWage,$baseWorkingCount,$holidaySalary,$holidayHours,$holidayTimes,$holidayHourlyWage,$holidayWorkingCount\n")
+
+                        val details = arrayOf(
+                            name,
+                            "$year/$month",
+                            "基本給料",
+                            baseWorkingCount,
+                            baseHours,
+                            baseTimes,
+                            "¥$baseHourlyWage",
+                            "¥$baseSalary",
+                            holidaySalary,
+                            holidayWorkingCount,
+                            holidayHours,
+                            holidayTimes,
+                            "¥$holidayHourlyWage",
+                            totalSalary
+                        )
+
+                        linesData.add(details)
+                    }
+
+                    // Transpose and write data, excluding first "従業員名" which will be the header
+                    for (i in headers.indices) {
+                        writer.append(headers[i])
+                        for (j in linesData.indices) {
+                            writer.append(",")
+                            writer.append(linesData[j][i])
+                        }
+                        writer.append("\n")
                     }
                 }
-
                 writer.flush()
                 Toast.makeText(this, "CSVとして保存しました", Toast.LENGTH_SHORT).show()
             }
