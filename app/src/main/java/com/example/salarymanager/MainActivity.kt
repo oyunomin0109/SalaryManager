@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity() {
     private var custom_hourly_wage_data: Int = 0
 
     //勤務回数カウント変数
-    private var working_count: Int = 0
+    //private var working_count: Int = 0
     //結果を表示するテキスト部品変数
     private lateinit var total_time: TextView
     private lateinit var total_salary: TextView
@@ -70,8 +70,8 @@ class MainActivity : AppCompatActivity() {
     private var user_base_work_times = 0
     private var user_holiday_work_hours = 0
     private var user_holiday_work_times = 0
-    private var user_base_work_count = 0
-    private var user_holiday_work_count = 0
+    //private var user_base_work_count = 0
+    //private var user_holiday_work_count = 0
 
     //平日、休日のボタンクリックしているかどうか
     private var base_salary_button_click: Boolean = false
@@ -177,7 +177,7 @@ class MainActivity : AppCompatActivity() {
                     user_base_work_hours = totaltimes / 60
                     user_base_work_times = totaltimes % 60
                     base_salary_button_click = true
-                    user_base_work_count = working_count
+                    //user_base_work_count = working_count
                     if(holiday_salary_button_click){
                         user_total_salary = user_base_salary + user_holiday_salary
                         total_salary.setText(user_total_salary.toString() + "円")
@@ -194,7 +194,7 @@ class MainActivity : AppCompatActivity() {
                     user_holiday_work_hours = totaltimes / 60
                     user_holiday_work_times = totaltimes % 60
                     holiday_salary_button_click = true
-                    user_holiday_work_count = working_count
+                    //user_holiday_work_count = working_count
                     if(base_salary_button_click){
                         user_total_salary = user_base_salary + user_holiday_salary
                         total_salary.setText(user_total_salary.toString() + "円")
@@ -211,7 +211,7 @@ class MainActivity : AppCompatActivity() {
                     user_base_work_hours = totaltimes / 60
                     user_base_work_times = totaltimes % 60
                     base_salary_button_click = true
-                    user_base_work_count = working_count
+                    //user_base_work_count = working_count
                     if(holiday_salary_button_click){
                         user_total_salary = user_base_salary + user_holiday_salary
                         total_salary.setText(user_total_salary.toString() + "円")
@@ -235,8 +235,8 @@ class MainActivity : AppCompatActivity() {
                 user_holiday_salary = 0
                 user_base_hourly_wage_data = 0
                 user_holiday_hourly_wage_data = 0
-                user_base_work_count = 0
-                user_holiday_work_count = 0
+                //user_base_work_count = 0
+                //user_holiday_work_count = 0
             }
             value == "C" -> {
                 inputTextView.setText("")
@@ -320,7 +320,7 @@ class MainActivity : AppCompatActivity() {
                     totalMinutes += timeInMinutes
                 }
             }
-            working_count++
+            //working_count++
         }
 
         totaltimes = totalMinutes
@@ -428,8 +428,8 @@ class MainActivity : AppCompatActivity() {
         //EditTextに予めテキストを入力しておく
         yearEditText.setText(save_database_year.toString())
         monthEditText.setText(save_database_month.toString())
-        baseworkcountEditText.setText(user_base_work_count.toString())
-        holidayworkcountEditText.setText(user_holiday_work_count.toString())
+        //baseworkcountEditText.setText(user_base_work_count.toString())
+        //holidayworkcountEditText.setText(user_holiday_work_count.toString())
 
         val employeeNames = getEmployeeNames()
         val spinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, employeeNames)
