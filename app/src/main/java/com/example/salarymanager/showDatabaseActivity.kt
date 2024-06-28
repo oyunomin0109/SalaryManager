@@ -2,7 +2,6 @@ package com.example.salarymanager
 
 import android.app.Activity
 import android.content.Intent
-import android.database.Cursor
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
@@ -13,18 +12,19 @@ import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import java.io.BufferedWriter
+import org.apache.poi.ss.usermodel.*
+import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.IOException
-import java.io.OutputStreamWriter
 
 class showDatabaseActivity : AppCompatActivity() {
+
     private lateinit var dbHelper: SalaryDatabaseHelper
     private lateinit var infoTextView: TextView
     private lateinit var dataTable: TableLayout
     private lateinit var yearSpinner: Spinner
     private lateinit var monthSpinner: Spinner
     private lateinit var viewButton: Button
-    private lateinit var csvButton: ImageButton
+    private lateinit var excelButton: ImageButton
     private lateinit var homeButton: ImageButton
 
     companion object {
@@ -34,7 +34,6 @@ class showDatabaseActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_database)
-
         initViews()
         setupDatabase()
 
@@ -60,8 +59,13 @@ class showDatabaseActivity : AppCompatActivity() {
             showData(selectedYear, selectedMonth)
         }
 
-        csvButton.setOnClickListener { saveAsCSV() }
-        homeButton.setOnClickListener { finish() }
+        excelButton.setOnClickListener {
+            saveAsExcel()
+        }
+
+        homeButton.setOnClickListener {
+            finish()
+        }
     }
 
     private fun initViews() {
@@ -70,7 +74,7 @@ class showDatabaseActivity : AppCompatActivity() {
         yearSpinner = findViewById(R.id.year_spinner)
         monthSpinner = findViewById(R.id.month_spinner)
         viewButton = findViewById(R.id.view_button)
-        csvButton = findViewById(R.id.csvButton)
+        excelButton = findViewById(R.id.excelButton)
         homeButton = findViewById(R.id.homeButton)
     }
 
@@ -132,7 +136,6 @@ class showDatabaseActivity : AppCompatActivity() {
                 dataTable.visibility = View.INVISIBLE
                 return
             }
-
             addTableHeader()
             while (cursor.moveToNext()) {
                 val year = cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_YEAR))
@@ -149,17 +152,15 @@ class showDatabaseActivity : AppCompatActivity() {
                 val holidayTimes = cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_TIMES))
                 val holidayHourlyWage = cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_HOURLY_WAGE))
                 val holidayWorkingCount = cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_WORKING_COUNT))
-
                 addTableRow(year, month, name, totalSalary, baseSalary, baseHours, baseTimes, baseHourlyWage, baseWorkingCount, holidaySalary, holidayHours, holidayTimes, holidayHourlyWage, holidayWorkingCount)
             }
-            csvButton.visibility = View.VISIBLE
+            excelButton.visibility = View.VISIBLE
         }
     }
 
     private fun addTableHeader() {
         val headerRow = TableRow(this)
         val headers = listOf("年", "月", "名前", "総給料", "平日給", "平日時", "平日分", "平日時給", "平日勤務回", "土休差額", "土休時", "土休分", "土休時給差額", "土休勤務回")
-
         headers.forEach { header ->
             val headerView = TextView(this).apply {
                 text = header
@@ -169,7 +170,6 @@ class showDatabaseActivity : AppCompatActivity() {
             }
             headerRow.addView(headerView)
         }
-
         dataTable.addView(headerRow)
         addSeparator()
     }
@@ -184,7 +184,9 @@ class showDatabaseActivity : AppCompatActivity() {
             }
             tableRow.addView(textView)
         }
-        tableRow.setOnClickListener { showDataDialog(values[0].toLong(), *values) }
+        tableRow.setOnClickListener {
+            showDataDialog(values[0].toLong(), *values)
+        }
         dataTable.addView(tableRow)
         addSeparator()
     }
@@ -232,18 +234,17 @@ class showDatabaseActivity : AppCompatActivity() {
         showData(yearSpinner.selectedItem.toString(), if (monthSpinner.visibility == View.VISIBLE) monthSpinner.selectedItem.toString() else null)
     }
 
-    private fun saveAsCSV() {
+    private fun saveAsExcel() {
         val selectedYear = yearSpinner.selectedItem.toString()
         val selectedMonth = if (monthSpinner.visibility == View.VISIBLE) {
             monthSpinner.selectedItem.toString().toIntOrNull()
         } else {
             null
         }
-
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
-            type = "text/csv"
-            putExtra(Intent.EXTRA_TITLE, "data.csv")
+            type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            putExtra(Intent.EXTRA_TITLE, "data.xlsx")
         }
         startActivityForResult(intent, CREATE_FILE_REQUEST_CODE, Bundle().apply {
             putString("year", selectedYear)
@@ -255,93 +256,101 @@ class showDatabaseActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, resultData)
         if (requestCode == CREATE_FILE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             resultData?.data?.let { uri ->
-                saveCsvToUri(uri, yearSpinner.selectedItem.toString(), if (monthSpinner.visibility == View.VISIBLE) monthSpinner.selectedItem.toString() else null)
+                saveExcelToUri(uri, yearSpinner.selectedItem.toString(), if (monthSpinner.visibility == View.VISIBLE) monthSpinner.selectedItem.toString() else null)
             }
         }
     }
 
-    private fun saveCsvToUri(uri: Uri, selectedYear: String, selectedMonth: String?) {
+    private fun saveExcelToUri(uri: Uri, selectedYear: String, selectedMonth: String?) {
         try {
             contentResolver.openOutputStream(uri)?.use { outputStream ->
-                val writer = BufferedWriter(OutputStreamWriter(outputStream))
+                val workbook: Workbook = XSSFWorkbook()
+                val sheet: Sheet = workbook.createSheet("データ")
+
                 val db = dbHelper.readableDatabase
 
+                // ヘッダー行なし
+
+                // データ行のタイトル
+                val headers = arrayOf(
+                    "従業員名", "年/月", "基本給料", "基本給料", "勤務回数", "時間", "分",
+                    "基本時給", "土休差額", "土休差額", "勤務回数", "時間", "分",
+                    "土休日差額時給", "合計給料額"
+                )
+
+                var rowIndex = 0
+                headers.forEachIndexed { index, header ->
+                    val row = sheet.createRow(rowIndex)
+                    row.createCell(0).setCellValue(header)
+                    rowIndex++
+                }
+
+                // データ行を設定
                 val (selection, selectionArgs) = if (selectedYear == "All") {
                     Pair(null, null)
                 } else {
                     if (selectedMonth != null && selectedMonth != "All") {
-                        Pair("${SalaryDatabaseContract.DatabaseEntry.COLUMN_YEAR} = ? AND ${SalaryDatabaseContract.DatabaseEntry.COLUMN_MONTH} = ?", arrayOf(selectedYear, selectedMonth))
+                        Pair("${SalaryDatabaseContract.DatabaseEntry.COLUMN_YEAR} = ? AND ${SalaryDatabaseContract.DatabaseEntry.COLUMN_MONTH} = ?",
+                            arrayOf(selectedYear, selectedMonth))
                     } else {
-                        Pair("${SalaryDatabaseContract.DatabaseEntry.COLUMN_YEAR} = ?", arrayOf(selectedYear))
+                        Pair("${SalaryDatabaseContract.DatabaseEntry.COLUMN_YEAR} = ?",
+                            arrayOf(selectedYear))
                     }
                 }
 
                 db.query(SalaryDatabaseContract.DatabaseEntry.TABLE_NAME, null, selection, selectionArgs, null, null, null).use { cursor ->
+                    if (cursor != null && cursor.moveToFirst()) {
+                        var columnIndex = 1 // データ格納開始列
+                        do {
+                            rowIndex = 0
+                            val rowValues = arrayOf(
+                                cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_NAME)),
+                                "${cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_YEAR))}/${cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_MONTH))}",
+                                "基本給料",
+                                "￥${cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_BASE_SALARY))}",
+                                cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_BASE_WORKING_COUNT)),
+                                cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_BASE_HOURS)),
+                                cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_BASE_TIMES)),
+                                "￥${cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_BASE_HOURLY_WAGE))}",
+                                "土休差額",
+                                "￥${cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_SALARY))}",
+                                cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_WORKING_COUNT)),
+                                cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_HOURS)),
+                                cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_TIMES)),
+                                "￥${cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_HOURLY_WAGE))}",
+                                "￥${cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_TOTAL_SALARY))}"
+                            )
 
-                    if (cursor == null || cursor.count == 0) {
-                        writer.append("データがありません")
-                        return
-                    }
+                            rowValues.forEach { value ->
+                                val row = sheet.getRow(rowIndex) ?: sheet.createRow(rowIndex)
+                                val cell = row.createCell(columnIndex)
+                                cell.setCellValue(value)
 
-                    val headers = arrayOf(
-                        "従業員名", "年月", "基本給料", "勤務日数", "時間", "分",
-                        "基本時給", "基本合計給料", "土休祝差額", "勤務日数", "時間",
-                        "分", "土休日差額時給", "合計給料額"
-                    )
+                                // 罫線のスタイルを追加
+                                val cellStyle = workbook.createCellStyle()
+                                cellStyle.borderTop = BorderStyle.THIN
+                                cellStyle.borderBottom = BorderStyle.THIN
+                                cellStyle.borderLeft = BorderStyle.THIN
+                                cellStyle.borderRight = BorderStyle.THIN
+                                cell.cellStyle = cellStyle
 
-                    // 各データの行データ
-                    val linesData = mutableListOf<Array<String>>()
-                    while (cursor.moveToNext()) {
-                        val year = cursor.getInt(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_YEAR))
-                        val month = cursor.getInt(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_MONTH))
-                        val name = cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_NAME))
-                        val totalSalary = cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_TOTAL_SALARY))
-                        val baseSalary = cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_BASE_SALARY))
-                        val baseHours = cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_BASE_HOURS))
-                        val baseTimes = cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_BASE_TIMES))
-                        val baseHourlyWage = cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_BASE_HOURLY_WAGE))
-                        val baseWorkingCount = cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_BASE_WORKING_COUNT))
-                        val holidaySalary = cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_SALARY))
-                        val holidayHours = cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_HOURS))
-                        val holidayTimes = cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_TIMES))
-                        val holidayHourlyWage = cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_HOURLY_WAGE))
-                        val holidayWorkingCount = cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_WORKING_COUNT))
+                                rowIndex++
+                            }
 
-                        val details = arrayOf(
-                            name,
-                            "$year/$month",
-                            "基本給料",
-                            baseWorkingCount,
-                            baseHours,
-                            baseTimes,
-                            "¥$baseHourlyWage",
-                            "¥$baseSalary",
-                            holidaySalary,
-                            holidayWorkingCount,
-                            holidayHours,
-                            holidayTimes,
-                            "¥$holidayHourlyWage",
-                            totalSalary
-                        )
-
-                        linesData.add(details)
-                    }
-
-                    // Transpose and write data, excluding first "従業員名" which will be the header
-                    for (i in headers.indices) {
-                        writer.append(headers[i])
-                        for (j in linesData.indices) {
-                            writer.append(",")
-                            writer.append(linesData[j][i])
-                        }
-                        writer.append("\n")
+                            columnIndex++
+                        } while (cursor.moveToNext())
                     }
                 }
-                writer.flush()
-                Toast.makeText(this, "CSVとして保存しました", Toast.LENGTH_SHORT).show()
+
+                for (i in 0..sheet.getRow(0).lastCellNum) {
+                    sheet.setColumnWidth(i, 3000) // 列幅
+                }
+                workbook.write(outputStream)
+                workbook.close()
+                Toast.makeText(this, "Excelとして保存しました", Toast.LENGTH_SHORT).show()
             }
         } catch (e: IOException) {
-            Log.e("CSV", "Error writing CSV", e)
+            Log.e("Excel", "Error writing Excel", e)
             Toast.makeText(this, "保存ができませんでした", Toast.LENGTH_SHORT).show()
         }
     }
