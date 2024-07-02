@@ -213,6 +213,7 @@ class EmployeeListActivity : AppCompatActivity(){
         val newRowId = db?.insert(EmployeeDatabaseContract.DatabaseEntry.TABLE_NAME, null, values)
         if (newRowId != null && newRowId != -1L) {
             Toast.makeText(this, "データを保存しました！", Toast.LENGTH_SHORT).show()
+            // 再表示する
             showData()
         } else {
             Toast.makeText(this, "データを保存できませんでした", Toast.LENGTH_SHORT).show()

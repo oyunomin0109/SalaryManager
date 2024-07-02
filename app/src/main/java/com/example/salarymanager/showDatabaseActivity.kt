@@ -138,6 +138,7 @@ class showDatabaseActivity : AppCompatActivity() {
             }
             addTableHeader()
             while (cursor.moveToNext()) {
+                val id = cursor.getLong(cursor.getColumnIndexOrThrow(BaseColumns._ID))
                 val year = cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_YEAR))
                 val month = cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_MONTH))
                 val name = cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_NAME))
@@ -152,7 +153,7 @@ class showDatabaseActivity : AppCompatActivity() {
                 val holidayTimes = cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_TIMES))
                 val holidayHourlyWage = cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_HOURLY_WAGE))
                 val holidayWorkingCount = cursor.getString(cursor.getColumnIndexOrThrow(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_WORKING_COUNT))
-                addTableRow(year, month, name, totalSalary, baseSalary, baseHours, baseTimes, baseHourlyWage, baseWorkingCount, holidaySalary, holidayHours, holidayTimes, holidayHourlyWage, holidayWorkingCount)
+                addTableRow(id, year, month, name, totalSalary, baseSalary, baseHours, baseTimes, baseHourlyWage, baseWorkingCount, holidaySalary, holidayHours, holidayTimes, holidayHourlyWage, holidayWorkingCount)
             }
             excelButton.visibility = View.VISIBLE
         }
@@ -174,8 +175,9 @@ class showDatabaseActivity : AppCompatActivity() {
         addSeparator()
     }
 
-    private fun addTableRow(vararg values: String) {
+    private fun addTableRow(id: Long, vararg values: String) {
         val tableRow = TableRow(this)
+        tableRow.tag = id
         values.forEach { value ->
             val textView = TextView(this).apply {
                 text = value
@@ -185,7 +187,7 @@ class showDatabaseActivity : AppCompatActivity() {
             tableRow.addView(textView)
         }
         tableRow.setOnClickListener {
-            showDataDialog(values[0].toLong(), *values)
+            showDataDialog(id, *values)
         }
         dataTable.addView(tableRow)
         addSeparator()
@@ -214,13 +216,31 @@ class showDatabaseActivity : AppCompatActivity() {
                 "土休祝勤務時間(時): ${values[10]}\n" +
                 "土休祝勤務時間(分): ${values[11]}\n" +
                 "土休祝差額時給: ${values[12]}\n" +
-                "土休祝差額時給: ${values[13]}\n"
+                "土休祝勤務回数: ${values[13]}\n"
 
         AlertDialog.Builder(this)
             .setTitle("詳細データ")
             .setMessage(details)
             .setPositiveButton("確認") { dialog, _ -> dialog.dismiss() }
-            .setNegativeButton("削除") { dialog, _ -> deleteData(id); dialog.dismiss() }
+            .setNegativeButton("削除") { dialog, _ ->
+                confirmDeleteData(id)
+                dialog.dismiss()
+            }
+            .create()
+            .show()
+    }
+
+    private fun confirmDeleteData(id: Long) {
+        AlertDialog.Builder(this)
+            .setTitle("確認")
+            .setMessage("本当に削除しますか？")
+            .setPositiveButton("はい") { dialog, _ ->
+                deleteData(id)
+                dialog.dismiss()
+            }
+            .setNegativeButton("いいえ") { dialog, _ ->
+                dialog.dismiss()
+            }
             .create()
             .show()
     }
@@ -229,9 +249,13 @@ class showDatabaseActivity : AppCompatActivity() {
         val db = dbHelper.writableDatabase
         val selection = "${BaseColumns._ID} = ?"
         val selectionArgs = arrayOf(id.toString())
-        db.delete(SalaryDatabaseContract.DatabaseEntry.TABLE_NAME, selection, selectionArgs)
-        Toast.makeText(this, "データを削除しました", Toast.LENGTH_SHORT).show()
-        showData(yearSpinner.selectedItem.toString(), if (monthSpinner.visibility == View.VISIBLE) monthSpinner.selectedItem.toString() else null)
+        val deletedRows = db.delete(SalaryDatabaseContract.DatabaseEntry.TABLE_NAME, selection, selectionArgs)
+        if (deletedRows > 0) {
+            Toast.makeText(this, "データを削除しました", Toast.LENGTH_SHORT).show()
+            showData(yearSpinner.selectedItem.toString(), if (monthSpinner.visibility == View.VISIBLE) monthSpinner.selectedItem.toString() else null)
+        } else {
+            Toast.makeText(this, "データの削除に失敗しました", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun saveAsExcel() {
