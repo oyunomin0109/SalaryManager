@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/baseHoursText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="基本(平日)勤務時間(時)"
+        android:textSize="20dp"
+        tools:ignore="TouchTargetSizeCheck" />
+    <EditText
+        android:id="@+id/baseHoursEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="基本(平日)勤務時間(時)"
+        android:inputType="number"
+        tools:ignore="TouchTargetSizeCheck" />
+
+    <TextView
+        android:id="@+id/baseMinutesText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="基本(平日)勤務時間(分)"
+        android:textSize="20dp"
+        tools:ignore="TouchTargetSizeCheck" />
+    <EditText
+        android:id="@+id/baseMinutesEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="基本(平日)勤務時間(分)"
+        android:inputType="number"
+        tools:ignore="TouchTargetSizeCheck" />
+
+    <TextView
+        android:id="@+id/holidayHoursText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="土休祝勤務時間(時)"
+        android:textSize="20dp"
+        tools:ignore="TouchTargetSizeCheck" />
+    <EditText
+        android:id="@+id/holidayHoursEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="土休祝勤務時間(時)"
+        android:inputType="number"
+        tools:ignore="TouchTargetSizeCheck" />
+
+    <TextView
+        android:id="@+id/holidayMinutesText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="土休祝勤務時間(分)"
+        android:textSize="20dp"
+        tools:ignore="TouchTargetSizeCheck" />
+    <EditText
+        android:id="@+id/holidayMinutesEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="土休祝勤務時間(分)"
+        android:inputType="number"
+        tools:ignore="TouchTargetSizeCheck" />
+
+    <TextView
+        android:id="@+id/workingCountText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="合計勤務回数"
+        android:textSize="20dp"
+        tools:ignore="TouchTargetSizeCheck" />
+    <EditText
+        android:id="@+id/workingCountEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="合計勤務回数"
+        android:inputType="number"
+        android:minHeight="48dp" />
+
+    <TextView
+        android:id="@+id/holidayCountText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="土休祝勤務回数"
+        android:textSize="20dp"
+        tools:ignore="TouchTargetSizeCheck" />
+    <EditText
+        android:id="@+id/holidayCountEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="土休祝勤務回数"
+        android:inputType="number"
+        tools:ignore="TouchTargetSizeCheck" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <Button
+            android:id="@+id/cancelButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="キャンセル" />
+
+        <Button
+            android:id="@+id/updateButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="修正" />
+    </LinearLayout>
+</LinearLayout>

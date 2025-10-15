@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -70,8 +71,6 @@ class MainActivity : AppCompatActivity() {
     private var user_base_work_times = 0
     private var user_holiday_work_hours = 0
     private var user_holiday_work_times = 0
-    //private var user_base_work_count = 0
-    //private var user_holiday_work_count = 0
 
     //平日、休日のボタンクリックしているかどうか
     private var base_salary_button_click: Boolean = false
@@ -136,14 +135,17 @@ class MainActivity : AppCompatActivity() {
             findViewById(R.id.allclear)
         )
 
+        //オプションメニューを表示
         optionMenuButton.setOnClickListener {
             showPopupMenu(it)
         }
 
+        //保存ダイアログを表示
         saveDBButton.setOnClickListener {
             showSaveDialog()
         }
 
+        //数字ボタンクリックイベント
         buttons.forEach { button ->
             button.setOnClickListener {
                 onButtonClick(button.text.toString())
@@ -155,7 +157,7 @@ class MainActivity : AppCompatActivity() {
     private fun onButtonClick(value: String) {
         when {
             value == "0" || value == "00" || value == "1" || value == "2" || value == "3" || value == "4" || value == "5" || value == "6" || value == "7" || value == "8" || value == "9" -> {
-                if(Resultbool == false){
+                if(Resultbool == false){ //=が押されていない場合は計算処理が行われる
                     val text = inputTextView.text.toString()
                     if (text.isEmpty()) {
                         inputTextView.setText(value)
@@ -168,7 +170,8 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             value == "平日" -> {
-                if(Resultbool == true){
+                if(Resultbool == true){ //=が押されているフラグが立っている場合は平日の給料額を表示する
+                    //正確な計算を行うため一旦double型にする必要がある
                     val result: Int = floor(totaltimes * weekdays_hourly_wage_data.toDouble() / 60.0).toInt()
                     base_total_salary.setText(result.toString() + "円")
                     base_hourly_wage_text.setText("勤務時間：" + (totaltimes / 60).toString() + ":" + (totaltimes % 60).toString() + "\n時給：" + weekdays_hourly_wage_data + "円")
@@ -186,6 +189,7 @@ class MainActivity : AppCompatActivity() {
             }
             value == "休日差額" -> {
                 if(Resultbool == true){
+                    //正確な計算を行うため一旦double型にする必要がある
                     val result: Int = floor(totaltimes * holidays_hourly_wage_data.toDouble() / 60.0).toInt()
                     holiday_total_salary.setText(result.toString() + "円")
                     holiday_hourly_wage_text.setText("勤務時間：" + (totaltimes / 60).toString() + ":" + (totaltimes % 60).toString() + "\n土休差額：" + holidays_hourly_wage_data + "円")
@@ -194,7 +198,6 @@ class MainActivity : AppCompatActivity() {
                     user_holiday_work_hours = totaltimes / 60
                     user_holiday_work_times = totaltimes % 60
                     holiday_salary_button_click = true
-                    //user_holiday_work_count = working_count
                     if(base_salary_button_click){
                         user_total_salary = user_base_salary + user_holiday_salary
                         total_salary.setText(user_total_salary.toString() + "円")
@@ -211,14 +214,13 @@ class MainActivity : AppCompatActivity() {
                     user_base_work_hours = totaltimes / 60
                     user_base_work_times = totaltimes % 60
                     base_salary_button_click = true
-                    //user_base_work_count = working_count
                     if(holiday_salary_button_click){
                         user_total_salary = user_base_salary + user_holiday_salary
                         total_salary.setText(user_total_salary.toString() + "円")
                     }
                 }
             }
-            value == "AC" -> {
+            value == "AC" -> { //すべてをリセットする
                 inputTextView.setText("")
                 Resultbool = false
                 totaltimes = 0
@@ -235,19 +237,20 @@ class MainActivity : AppCompatActivity() {
                 user_holiday_salary = 0
                 user_base_hourly_wage_data = 0
                 user_holiday_hourly_wage_data = 0
-                //user_base_work_count = 0
-                //user_holiday_work_count = 0
             }
-            value == "C" -> {
+            value == "C" -> { //計算テキスト、合計時間、=ボタンクリックフラグをリセットする
                 inputTextView.setText("")
                 Resultbool = false
                 totaltimes = 0
             }
-            value == "⌫" -> {
+            value == "⌫" -> { //一文字消す
                 NumCheck = false
                 if(Resultbool == false){
-                    if(inputTextView.text.length == 0) inputTextView.setText("")
-                    else inputTextView.setText(inputTextView.text.substring(0, inputTextView.text.length - 1))
+                    val text: String = inputTextView.text.toString()
+                    if(!(text.last() == '+' || text.last() == '-')){
+                        if(inputTextView.text.length == 0) inputTextView.setText("")
+                        else inputTextView.setText(inputTextView.text.substring(0, inputTextView.text.length - 1))
+                    }
                 }
             }
             value == "+" || value == "-" || value == "=" -> {
@@ -303,24 +306,31 @@ class MainActivity : AppCompatActivity() {
                 newpart = part.drop(1)
                 val timeParts = newpart.split(":")
                 if (timeParts.size == 2) {
-                    val hours = timeParts[0].toInt()
-                    val minutes = timeParts[1].toInt()
+                    var hours = timeParts[0].toInt()
+                    var minutes = timeParts[1].toInt()
+                    if (minutes >= 60) {
+                        hours += minutes / 60
+                        minutes = minutes % 60
+                    }
                     val timeInMinutes = hours * 60 + minutes
                     totalMinutes -= timeInMinutes
                 }
-            }else{
+            } else {
                 if(part.startsWith("+")) {
                     newpart = part.drop(1)
                 }
                 val timeParts = newpart.split(":")
                 if (timeParts.size == 2) {
-                    val hours = timeParts[0].toInt()
-                    val minutes = timeParts[1].toInt()
+                    var hours = timeParts[0].toInt()
+                    var minutes = timeParts[1].toInt()
+                    if (minutes >= 60) {
+                        hours += minutes / 60
+                        minutes = minutes % 60
+                    }
                     val timeInMinutes = hours * 60 + minutes
                     totalMinutes += timeInMinutes
                 }
             }
-            //working_count++
         }
 
         totaltimes = totalMinutes
@@ -355,63 +365,67 @@ class MainActivity : AppCompatActivity() {
 
         return parts
     }
-    //平日の時給設定ダイアログ
-    fun showWeekdayHourlyWageInputDialog(context: Context, listener: (String) -> Unit) {
-        val editText = EditText(context)
-        editText.setText(weekdays_hourly_wage_data.toString())
-        val dialog = AlertDialog.Builder(context)
-            .setTitle("給料金額設定")
-            .setMessage("平日の時給を入力してください:")
-            .setView(editText)
-            .setPositiveButton("次へ") { dialog, _ ->
-                val text = editText.text.toString()
-                if (text.toIntOrNull() != null) listener(text)
-                else dialog.dismiss()
-            }
-            .setNegativeButton("キャンセル") { dialog, _ ->
-                dialog.dismiss()
-            }
+
+    //時給額設定
+    private fun showEditSalaryDialog() {
+        // ダイアログのビューを生成
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_edit_salary, null)
+
+        // EditTextを初期化
+        val baseSalaryEditText = dialogView.findViewById<EditText>(R.id.baseSalaryEditText)
+        val holidaySalaryEditText = dialogView.findViewById<EditText>(R.id.holidaySalaryEditText)
+        val customSalaryEditText = dialogView.findViewById<EditText>(R.id.customSalaryEditText)
+
+        // 現在の値をEditTextに設定
+        baseSalaryEditText.setText(weekdays_hourly_wage_data.toString())
+        holidaySalaryEditText.setText(holidays_hourly_wage_data.toString())
+        customSalaryEditText.setText(custom_hourly_wage_data.toString())
+
+        // ダイアログの作成
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("時給設定")
+            .setView(dialogView)
             .create()
+
+        // ボタンのリスナーを設定
+        dialogView.findViewById<Button>(R.id.updateButton).setOnClickListener {
+            // 値を取得して変数を更新
+            val baseSalary = baseSalaryEditText.text.toString().toIntOrNull()
+            val holidaySalary = holidaySalaryEditText.text.toString().toIntOrNull()
+            val customSalary = customSalaryEditText.text.toString().toIntOrNull()
+
+            if (baseSalary != null) {
+                weekdays_hourly_wage_data = baseSalary
+            }
+            if (holidaySalary != null) {
+                holidays_hourly_wage_data = holidaySalary
+            }
+            if (customSalary != null) {
+                custom_hourly_wage_data = customSalary
+            }
+
+            // SharedPreferencesの更新
+            val hourlyWageDataPrefs = getSharedPreferences("salary_manager_hourly_wage_data", MODE_PRIVATE)
+            hourlyWageDataPrefs.edit().apply {
+                putInt("weekdays_hourly_wage", weekdays_hourly_wage_data)
+                putInt("holiday_hourly_wage", holidays_hourly_wage_data)
+                putInt("custom_hourly_wage", custom_hourly_wage_data)
+                apply()
+            }
+
+            // ダイアログを閉じて、トーストを表示
+            dialog.dismiss()
+            Toast.makeText(this, "時給が更新されました！", Toast.LENGTH_SHORT).show()
+        }
+
+        // キャンセルボタンのリスナー
+        dialogView.findViewById<Button>(R.id.cancelButton).setOnClickListener {
+            dialog.dismiss()
+        }
+
         dialog.show()
     }
-    //土休祝の時給設定ダイアログ
-    fun showHolidayHourlyWageInputDialog(context: Context, listener: (String) -> Unit) {
-        val editText = EditText(context)
-        editText.setText(holidays_hourly_wage_data.toString())
-        val dialog = AlertDialog.Builder(context)
-            .setTitle("給料金額設定")
-            .setMessage("土休祝の差額時給を入力してください:")
-            .setView(editText)
-            .setPositiveButton("次へ") { dialog, _ ->
-                val text = editText.text.toString()
-                if (text.toIntOrNull() != null) listener(text)
-                else dialog.dismiss()
-            }
-            .setNegativeButton("キャンセル") { dialog, _ ->
-                dialog.dismiss()
-            }
-            .create()
-        dialog.show()
-    }
-    //カスタム時給設定ダイアログ
-    fun showCustomHourlyWageInputDialog(context: Context, listener: (String) -> Unit) {
-        val editText = EditText(context)
-        editText.setText(custom_hourly_wage_data.toString())
-        val dialog = AlertDialog.Builder(context)
-            .setTitle("給料金額設定")
-            .setMessage("任意の時給を入力してください:")
-            .setView(editText)
-            .setPositiveButton("終了") { dialog, _ ->
-                val text = editText.text.toString()
-                if (text.toIntOrNull() != null) listener(text)
-                else dialog.dismiss()
-            }
-            .setNegativeButton("キャンセル") { dialog, _ ->
-                dialog.dismiss()
-            }
-            .create()
-        dialog.show()
-    }
+
     //保存ダイアログ表示関数
     private fun showSaveDialog() {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_save, null)
@@ -423,13 +437,11 @@ class MainActivity : AppCompatActivity() {
         val holidayworkcountEditText = dialogView.findViewById<EditText>(R.id.holidayworkcountEditText)
 
         val save_database_date = getSharedPreferences("save_database_date", MODE_PRIVATE)
-        val save_database_year = save_database_date.getInt("save_database_year", 2024) //年
-        val save_database_month = save_database_date.getInt("save_database_month", 1) //月
-        //EditTextに予めテキストを入力しておく
+        val save_database_year = save_database_date.getInt("save_database_year", 2024)
+        val save_database_month = save_database_date.getInt("save_database_month", 1)
+
         yearEditText.setText(save_database_year.toString())
         monthEditText.setText(save_database_month.toString())
-        //baseworkcountEditText.setText(user_base_work_count.toString())
-        //holidayworkcountEditText.setText(user_holiday_work_count.toString())
 
         val employeeNames = getEmployeeNames()
         val spinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, employeeNames)
@@ -445,17 +457,59 @@ class MainActivity : AppCompatActivity() {
                 val month = monthEditText.text.toString().toInt()
                 val base_work_count = baseworkcountEditText.text.toString().toInt()
                 val holiday_work_count = holidayworkcountEditText.text.toString().toInt()
-                saveDatabase(year, month, name, base_work_count, holiday_work_count)
+
+                // レコードが存在するか確認
+                if (isRecordExists(year, month, name)) {
+                    // 確認ダイアログを表示
+                    showConfirmationDialog(year, month, name, base_work_count, holiday_work_count)
+                } else {
+                    saveDatabase(year, month, name, base_work_count, holiday_work_count)
+                }
 
                 val save_database_date_editor: SharedPreferences.Editor = save_database_date.edit()
-                save_database_date_editor.putInt("save_database_year", yearEditText.text.toString().toInt())
-                save_database_date_editor.putInt("save_database_month", monthEditText.text.toString().toInt())
+                save_database_date_editor.putInt("save_database_year", year)
+                save_database_date_editor.putInt("save_database_month", month)
                 save_database_date_editor.apply()
             }
             .setNegativeButton("キャンセル", null)
             .show()
     }
-    //従業員名取得関数
+
+    private fun isRecordExists(year: Int, month: Int, name: String): Boolean {
+        val db = salaryDBHelper.readableDatabase
+        val cursor = db.query(
+            SalaryDatabaseContract.DatabaseEntry.TABLE_NAME,
+            null,
+            "${SalaryDatabaseContract.DatabaseEntry.COLUMN_YEAR} = ? AND ${SalaryDatabaseContract.DatabaseEntry.COLUMN_MONTH} = ? AND ${SalaryDatabaseContract.DatabaseEntry.COLUMN_NAME} = ?",
+            arrayOf(year.toString(), month.toString(), name),
+            null,
+            null,
+            null
+        )
+        val exists = cursor.count > 0
+        cursor.close()
+        return exists
+    }
+
+    private fun showConfirmationDialog(year: Int, month: Int, name: String, baseWorkCount: Int, holidayWorkCount: Int) {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("データが存在します")
+        builder.setMessage("同じ年、月、従業員名のデータがすでに存在しますが保存しますか？")
+
+        builder.setPositiveButton("はい") { dialog, _ ->
+            saveDatabase(year, month, name, baseWorkCount, holidayWorkCount)
+            dialog.dismiss()
+        }
+
+        builder.setNegativeButton("いいえ") { dialog, _ ->
+            dialog.dismiss()
+        }
+
+        val dialog: AlertDialog = builder.create()
+        dialog.show()
+    }
+
+    // 従業員名取得関数
     private fun getEmployeeNames(): List<String> {
         val names = mutableListOf<String>()
         val db = employeeDBHelper.readableDatabase
@@ -472,11 +526,35 @@ class MainActivity : AppCompatActivity() {
         }
         return names
     }
-    //データベース保存関数
+
+    // データベース保存関数
     private fun saveDatabase(year: Int, month: Int, name: String, base_work_count: Int, holiday_work_count: Int) {
-        if(user_total_salary == 0){
+        // 選択された従業員の時給データを取得
+        val employeeHourlyWages = getEmployeeHourlyWages(name)
+        if (employeeHourlyWages != null) {
+            Log.d("test", employeeHourlyWages.toString())
+            weekdays_hourly_wage_data = employeeHourlyWages.first
+            holidays_hourly_wage_data = employeeHourlyWages.second
+        } else {
+            Toast.makeText(this, "従業員の時給データを取得できませんでした", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // 平日勤務時間（分）の計算
+        val baseTotalMinutes = user_base_work_hours * 60 + user_base_work_times
+        val baseSalary = floor(baseTotalMinutes * weekdays_hourly_wage_data.toDouble() / 60.0).toInt()
+
+        // 休日勤務時間（分）の計算
+        val holidayTotalMinutes = user_holiday_work_hours * 60 + user_holiday_work_times
+        val holidaySalary = floor(holidayTotalMinutes * holidays_hourly_wage_data.toDouble() / 60.0).toInt()
+
+        user_base_salary = baseSalary
+        user_holiday_salary = holidaySalary
+        user_total_salary = user_base_salary + user_holiday_salary
+
+        if (user_total_salary == 0) {
             Toast.makeText(this, "保存するデータの情報が不足しています！", Toast.LENGTH_SHORT).show()
-        }else{
+        } else {
             val db = salaryDBHelper.writableDatabase
             val values = ContentValues().apply {
                 put(SalaryDatabaseContract.DatabaseEntry.COLUMN_YEAR, year)
@@ -486,24 +564,48 @@ class MainActivity : AppCompatActivity() {
                 put(SalaryDatabaseContract.DatabaseEntry.COLUMN_BASE_SALARY, user_base_salary)
                 put(SalaryDatabaseContract.DatabaseEntry.COLUMN_BASE_HOURS, user_base_work_hours)
                 put(SalaryDatabaseContract.DatabaseEntry.COLUMN_BASE_TIMES, user_base_work_times)
-                put(SalaryDatabaseContract.DatabaseEntry.COLUMN_BASE_HOURLY_WAGE, user_base_hourly_wage_data)
+                put(SalaryDatabaseContract.DatabaseEntry.COLUMN_BASE_HOURLY_WAGE, weekdays_hourly_wage_data)
                 put(SalaryDatabaseContract.DatabaseEntry.COLUMN_BASE_WORKING_COUNT, base_work_count)
                 put(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_SALARY, user_holiday_salary)
                 put(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_HOURS, user_holiday_work_hours)
                 put(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_TIMES, user_holiday_work_times)
-                put(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_HOURLY_WAGE, user_holiday_hourly_wage_data)
+                put(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_HOURLY_WAGE, holidays_hourly_wage_data)
                 put(SalaryDatabaseContract.DatabaseEntry.COLUMN_HOLIDAY_WORKING_COUNT, holiday_work_count)
-
             }
 
-            val newRowId = db?.insert(SalaryDatabaseContract.DatabaseEntry.TABLE_NAME, null, values)
-            if (newRowId != null && newRowId != -1L) {
+            val newRowId = db.insert(SalaryDatabaseContract.DatabaseEntry.TABLE_NAME, null, values)
+            if (newRowId != -1L) {
                 Toast.makeText(this, "データを保存しました！", Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(this, "データを保存できませんでした", Toast.LENGTH_SHORT).show()
             }
         }
     }
+
+    // 従業員の時給データを取得する関数
+    private fun getEmployeeHourlyWages(name: String): Pair<Int, Int>? {
+        val db = employeeDBHelper.readableDatabase
+        val cursor = db.query(
+            EmployeeDatabaseContract.DatabaseEntry.TABLE_NAME,
+            arrayOf(EmployeeDatabaseContract.DatabaseEntry.WEEKDAYS_HOURLY_WAGE, EmployeeDatabaseContract.DatabaseEntry.HOLIDAY_HOURLY_WAGE),
+            "${EmployeeDatabaseContract.DatabaseEntry.EMPLOYEE_NAME} = ?",
+            arrayOf(name),
+            null,
+            null,
+            null
+        )
+
+        var hourlyWages: Pair<Int, Int>? = null
+        cursor?.use {
+            if (it.moveToFirst()) {
+                val weekdaysHourlyWage = it.getInt(it.getColumnIndexOrThrow(EmployeeDatabaseContract.DatabaseEntry.WEEKDAYS_HOURLY_WAGE))
+                val holidayHourlyWage = it.getInt(it.getColumnIndexOrThrow(EmployeeDatabaseContract.DatabaseEntry.HOLIDAY_HOURLY_WAGE))
+                hourlyWages = Pair(weekdaysHourlyWage, holidayHourlyWage)
+            }
+        }
+        return hourlyWages
+    }
+
     //メニュー画面表示関数
     private fun showPopupMenu(view: View) {
         val popup = PopupMenu(this, view)
@@ -528,25 +630,7 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             R.id.setting_hourly_wage -> {
-                showWeekdayHourlyWageInputDialog(this) { weekdays_hourly_wage_text ->
-                    val hourly_wage_data = getSharedPreferences("salary_manager_hourly_wage_data", MODE_PRIVATE)
-                    val weekdays_hourly_wage_editor: SharedPreferences.Editor = hourly_wage_data.edit()
-                    weekdays_hourly_wage_editor.putInt("weekdays_hourly_wage", weekdays_hourly_wage_text.toInt())
-                    weekdays_hourly_wage_editor.apply()
-                    weekdays_hourly_wage_data = weekdays_hourly_wage_text.toInt()
-                    showHolidayHourlyWageInputDialog(this) { holidays_hourly_wage_text ->
-                        val holidays_hourly_wage_editor: SharedPreferences.Editor = hourly_wage_data.edit()
-                        holidays_hourly_wage_editor.putInt("holiday_hourly_wage", holidays_hourly_wage_text.toInt())
-                        holidays_hourly_wage_editor.apply()
-                        holidays_hourly_wage_data = holidays_hourly_wage_text.toInt()
-                        showCustomHourlyWageInputDialog(this) { custom_hourly_wage_text ->
-                            val custom_hourly_wage_editor: SharedPreferences.Editor = hourly_wage_data.edit()
-                            custom_hourly_wage_editor.putInt("custom_hourly_wage", custom_hourly_wage_text.toInt())
-                            custom_hourly_wage_editor.apply()
-                            custom_hourly_wage_data = custom_hourly_wage_text.toInt()
-                        }
-                    }
-                }
+                showEditSalaryDialog()
                 true
             }
             R.id.operation_manual -> {

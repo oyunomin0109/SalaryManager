@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/baseSalaryText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="基本時給額"
+        android:textSize="20dp"
+        tools:ignore="TouchTargetSizeCheck" />
+    <EditText
+        android:id="@+id/baseSalaryEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="基本時給額"
+        android:inputType="number"
+        tools:ignore="TouchTargetSizeCheck" />
+
+    <TextView
+        android:id="@+id/holidaySalaryText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="土休祝差分時給額"
+        android:textSize="20dp"
+        tools:ignore="TouchTargetSizeCheck" />
+    <EditText
+        android:id="@+id/holidaySalaryEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="土休祝差分時給額"
+        android:inputType="number"
+        tools:ignore="TouchTargetSizeCheck" />
+
+    <TextView
+        android:id="@+id/customSalaryText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="カスタム時給"
+        android:textSize="20dp"
+        tools:ignore="TouchTargetSizeCheck" />
+    <EditText
+        android:id="@+id/customSalaryEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="カスタム時給"
+        android:inputType="number"
+        tools:ignore="TouchTargetSizeCheck" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <Button
+            android:id="@+id/cancelButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="キャンセル" />
+
+        <Button
+            android:id="@+id/updateButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="修正" />
+    </LinearLayout>
+</LinearLayout>

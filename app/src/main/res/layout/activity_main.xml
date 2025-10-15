@@ -81,10 +81,9 @@
                 android:layout_height="match_parent"
                 android:layout_margin="1dp"
                 android:layout_weight="1"
-                android:backgroundTint="#76FF03"
-                android:text="カスタム"
+                android:backgroundTint="#DBF8C3"
                 app:cornerRadius="0dp"
-                tools:ignore="TouchTargetSizeCheck" />
+                tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
 
             <Button
                 android:id="@+id/allclear"

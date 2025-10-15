@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/nameText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="従業員名"
+            android:textSize="20dp" />
+
+        <EditText
+            android:id="@+id/nameEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="名前"
+            android:inputType="text"
+            tools:ignore="TouchTargetSizeCheck" />
+
+        <TextView
+            android:id="@+id/hireDataText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="勤務開始年月"
+            android:textSize="20dp"
+            android:layout_marginTop="16dp" />
+
+        <EditText
+            android:id="@+id/hireDataEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="勤務開始年月"
+            android:inputType="text"
+            tools:ignore="TouchTargetSizeCheck" />
+
+        <TextView
+            android:id="@+id/remarkText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="備考"
+            android:textSize="20dp"
+            android:layout_marginTop="16dp" />
+
+        <EditText
+            android:id="@+id/remarkEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="備考"
+            android:inputType="text"
+            tools:ignore="TouchTargetSizeCheck" />
+
+        <TextView
+            android:id="@+id/weekdaysWageText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="平日時給 (円)"
+            android:textSize="20dp"
+            android:layout_marginTop="16dp" />
+
+        <EditText
+            android:id="@+id/weekdaysWageEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="平日時給"
+            android:inputType="number"
+            tools:ignore="TouchTargetSizeCheck" />
+
+        <TextView
+            android:id="@+id/holidayWageText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="休日時給差額 (円)"
+            android:textSize="20dp"
+            android:layout_marginTop="16dp" />
+
+        <EditText
+            android:id="@+id/holidayWageEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="休日時給差額"
+            android:inputType="number"
+            tools:ignore="TouchTargetSizeCheck" />
+    </LinearLayout>
+</ScrollView>
